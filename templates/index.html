@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nano Banana 圖片生成器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 5px solid #3498db;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10">
+            <header class="text-center mb-8">
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-800">Nano Banana 圖片生成器</h1>
+                <p class="text-gray-500 mt-2">上傳圖片，輸入提示，創造獨一無二的影像!</p>
+            </header>
+
+            <main class="grid md:grid-cols-2 gap-8">
+                <!-- 左側：輸入區 -->
+                <div class="space-y-6">
+                    <div>
+                        <label for="image-upload" class="block text-sm font-medium text-gray-700 mb-1">上傳圖片</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                            <div class="space-y-1 text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="image-upload-input" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                        <span>選擇一個檔案</span>
+                                        <input id="image-upload-input" name="image-upload" type="file" class="sr-only" accept="image/*">
+                                    </label>
+                                    <p class="pl-1">或拖曳到此處</p>
+                                </div>
+                                <p class="text-xs text-gray-500" id="file-name">PNG, JPG, GIF up to 10MB</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="prompt" class="block text-sm font-medium text-gray-700 mb-1">圖片提示 (Prompt)</label>
+                        <textarea id="prompt" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="例如：一隻貓在月球上，普普藝術風格"></textarea>
+                    </div>
+                    <button id="generate-btn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition duration-300 disabled:bg-gray-400">
+                        生成圖片
+                    </button>
+                </div>
+
+                <!-- 右側：預覽與結果區 -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                         <h3 class="text-lg font-semibold text-gray-800">預覽與結果</h3>
+                         <button id="download-btn" class="bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition duration-300 disabled:bg-gray-400" disabled>
+                            下載圖片
+                        </button>
+                    </div>
+                    <div id="image-preview-container" class="w-full aspect-square bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                        <span class="text-gray-500">圖片預覽</span>
+                    </div>
+                    <div id="result-container" class="w-full aspect-square bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden relative">
+                         <div id="loader" class="loader hidden"></div>
+                        <img id="result-image" src="" alt="Generated Image" class="hidden w-full h-full object-contain">
+                        <span id="result-placeholder" class="text-gray-500">生成的圖片將顯示在此</span>
+                    </div>
+                </div>
+            </main>
+
+            <div id="message-box" class="fixed top-5 right-5 bg-blue-500 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transition-opacity duration-300">
+                <span id="message-text"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 設定 ---
+        // **已移除硬編碼的 GEMINI_API_KEY**
+        
+        // --- DOM 元素 ---
+        const imageUploadInput = document.getElementById('image-upload-input');
+        const fileNameDisplay = document.getElementById('file-name');
+        const promptInput = document.getElementById('prompt');
+        const generateBtn = document.getElementById('generate-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const resultContainer = document.getElementById('result-container');
+        const loader = document.getElementById('loader');
+        const resultImage = document.getElementById('result-image');
+        const resultPlaceholder = document.getElementById('result-placeholder');
+        const messageBox = document.getElementById('message-box');
+        const messageText = document.getElementById('message-text');
+
+        // --- 狀態變數 ---
+        let uploadedFile = null;
+        let generatedImageBase64 = null;
+
+        // --- 事件監聽 ---
+        imageUploadInput.addEventListener('change', handleImageUpload);
+        generateBtn.addEventListener('click', handleGenerateImage);
+        downloadBtn.addEventListener('click', handleDownloadImage);
+
+        // --- 函式 ---
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            uploadedFile = file;
+            fileNameDisplay.textContent = file.name;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreviewContainer.innerHTML = `<img src="${e.target.result}" alt="Preview" class="w-full h-full object-contain">`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function handleGenerateImage() {
+            if (!uploadedFile || !promptInput.value.trim()) {
+                showMessage("請先上傳圖片並輸入提示詞！", "error");
+                return;
+            }
+
+            setLoading(true);
+            resultImage.classList.add('hidden');
+            resultPlaceholder.classList.add('hidden');
+            generatedImageBase64 = null;
+            downloadBtn.disabled = true;
+
+            try {
+                const base64ImageData = await fileToBase64(uploadedFile);
+                
+                // **修改：API 呼叫的 URL 改為我們自己的後端端點**
+                const apiUrl = `/generate`; // 相對路徑會自動指向我們的 Cloud Function
+                
+                const payload = {
+                    contents: [{
+                        parts: [
+                            { text: promptInput.value },
+                            { inlineData: { mimeType: uploadedFile.type, data: base64ImageData.split(',')[1] } }
+                        ]
+                    }]
+                };
+
+                // **修改：呼叫我們自己的後端，而不是直接呼叫 Gemini**
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    // 如果後端回傳錯誤，顯示錯誤訊息
+                    throw new Error(result.error?.message || '後端伺服器發生錯誤');
+                }
+                
+                console.log("Full API Response from backend:", JSON.stringify(result, null, 2));
+
+                const imagePart = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+                
+                if (imagePart) {
+                    generatedImageBase64 = imagePart.inlineData.data;
+                    const mimeType = imagePart.inlineData.mimeType;
+                    resultImage.src = `data:${mimeType};base64,${generatedImageBase64}`;
+                    resultImage.classList.remove('hidden');
+                    downloadBtn.disabled = false;
+                    showMessage("圖片生成成功！");
+                } else {
+                    let detailedError = "API 回應中未找到圖片資料。";
+                    if (result?.candidates?.[0]?.finishReason === 'SAFETY') {
+                        detailedError += " 這可能是因為觸發了安全過濾器。請嘗試不同的圖片或提示詞。";
+                    } else if (result.error) {
+                        detailedError = result.error.message;
+                    }
+                    throw new Error(detailedError);
+                }
+
+            } catch (error) {
+                console.error('生成圖片時發生錯誤:', error);
+                showMessage(`生成失敗: ${error.message}`, "error");
+                resultPlaceholder.classList.remove('hidden');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function handleDownloadImage() {
+            if (!generatedImageBase64) {
+                showMessage("沒有可下載的圖片！", "error");
+                return;
+            }
+            const link = document.createElement('a');
+            link.href = resultImage.src;
+            link.download = `nano-banana-${Date.now()}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showMessage("圖片已開始下載！");
+        }
+
+        function setLoading(isLoading) {
+            generateBtn.disabled = isLoading;
+            loader.classList.toggle('hidden', !isLoading);
+        }
+
+        function showMessage(text, type = 'success') {
+            messageText.textContent = text;
+            messageBox.className = 'fixed top-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg opacity-100 transition-opacity duration-300'; // Reset classes
+            messageBox.classList.add(type === 'error' ? 'bg-red-500' : 'bg-blue-500');
+            setTimeout(() => {
+                messageBox.classList.replace('opacity-100', 'opacity-0');
+            }, 3000);
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+    </script>
+</body>
+</html>
