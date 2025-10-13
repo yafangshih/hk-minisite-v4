@@ -11,7 +11,7 @@ app = Flask(__name__)
 # 從環境變數中獲取 GCP 專案 ID 和金鑰名稱
 # 這些將在 Cloud Function 的部署設定中設定
 PROJECT_ID = os.environ.get('GCP_PROJECT')
-SECRET_ID = "GEMINI_API_KEY"  # 您在 Secret Manager 中建立的金鑰名稱
+SECRET_ID = "HK_MINISITE_GEMINI_API_KEY"  # 您在 Secret Manager 中建立的金鑰名稱
 SECRET_VERSION = "latest"   # 總是使用最新版本的金鑰
 
 # --- Secret Manager 輔助函式 ---
