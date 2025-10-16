@@ -63,12 +63,7 @@
 
                 <!-- 右側：預覽與結果區 -->
                 <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                         <h3 class="text-lg font-semibold text-gray-800">預覽與結果</h3>
-                         <button id="download-btn" class="bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition duration-300 disabled:bg-gray-400" disabled>
-                            下載圖片
-                        </button>
-                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">預覽與結果</h3>
                     <div id="image-preview-container" class="w-full aspect-square bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
                         <span class="text-gray-500">圖片預覽</span>
                     </div>
@@ -77,6 +72,10 @@
                         <img id="result-image" src="" alt="Generated Image" class="hidden w-full h-full object-contain">
                         <span id="result-placeholder" class="text-gray-500">生成的圖片將顯示在此</span>
                     </div>
+                    <!-- 新增：手機版下載提示 -->
+                    <p id="mobile-download-tip" class="text-center text-gray-500 text-sm mt-2 hidden md:hidden">
+                        請長按圖片後點選下載圖片
+                    </p>
                 </div>
             </main>
 
@@ -88,14 +87,12 @@
 
     <script>
         // --- 設定 ---
-        // **已移除硬編碼的 GEMINI_API_KEY**
         
         // --- DOM 元素 ---
         const imageUploadInput = document.getElementById('image-upload-input');
         const fileNameDisplay = document.getElementById('file-name');
         const promptInput = document.getElementById('prompt');
         const generateBtn = document.getElementById('generate-btn');
-        const downloadBtn = document.getElementById('download-btn');
         const imagePreviewContainer = document.getElementById('image-preview-container');
         const resultContainer = document.getElementById('result-container');
         const loader = document.getElementById('loader');
@@ -103,15 +100,14 @@
         const resultPlaceholder = document.getElementById('result-placeholder');
         const messageBox = document.getElementById('message-box');
         const messageText = document.getElementById('message-text');
+        const mobileDownloadTip = document.getElementById('mobile-download-tip'); // 新增
 
         // --- 狀態變數 ---
         let uploadedFile = null;
-        let generatedImageBase64 = null;
 
         // --- 事件監聽 ---
         imageUploadInput.addEventListener('change', handleImageUpload);
         generateBtn.addEventListener('click', handleGenerateImage);
-        downloadBtn.addEventListener('click', handleDownloadImage);
 
         // --- 函式 ---
         function handleImageUpload(event) {
@@ -135,14 +131,12 @@
             setLoading(true);
             resultImage.classList.add('hidden');
             resultPlaceholder.classList.add('hidden');
-            generatedImageBase64 = null;
-            downloadBtn.disabled = true;
+            mobileDownloadTip.classList.add('hidden'); // 隱藏提示
 
             try {
                 const base64ImageData = await fileToBase64(uploadedFile);
                 
-                // **修改：API 呼叫的 URL 改為我們自己的後端端點**
-                const apiUrl = `/generate`; // 相對路徑會自動指向我們的 Cloud Function
+                const apiUrl = `/generate`; 
                 
                 const payload = {
                     contents: [{
@@ -153,7 +147,6 @@
                     }]
                 };
 
-                // **修改：呼叫我們自己的後端，而不是直接呼叫 Gemini**
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -163,7 +156,6 @@
                 const result = await response.json();
 
                 if (!response.ok) {
-                    // 如果後端回傳錯誤，顯示錯誤訊息
                     throw new Error(result.error?.message || '後端伺服器發生錯誤');
                 }
                 
@@ -172,11 +164,11 @@
                 const imagePart = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
                 
                 if (imagePart) {
-                    generatedImageBase64 = imagePart.inlineData.data;
+                    const generatedImageBase64 = imagePart.inlineData.data;
                     const mimeType = imagePart.inlineData.mimeType;
                     resultImage.src = `data:${mimeType};base64,${generatedImageBase64}`;
                     resultImage.classList.remove('hidden');
-                    downloadBtn.disabled = false;
+                    mobileDownloadTip.classList.remove('hidden'); // 顯示提示
                     showMessage("圖片生成成功！");
                 } else {
                     let detailedError = "API 回應中未找到圖片資料。";
@@ -197,19 +189,7 @@
             }
         }
 
-        function handleDownloadImage() {
-            if (!generatedImageBase64) {
-                showMessage("沒有可下載的圖片！", "error");
-                return;
-            }
-            const link = document.createElement('a');
-            link.href = resultImage.src;
-            link.download = `nano-banana-${Date.now()}.png`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showMessage("圖片已開始下載！");
-        }
+        // 已移除 handleDownloadImage 函式
 
         function setLoading(isLoading) {
             generateBtn.disabled = isLoading;
