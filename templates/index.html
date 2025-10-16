@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nano Banana 圖片生成器</title>
+    <title>Nano Banana Playground</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -27,15 +27,15 @@
     <div class="container mx-auto p-4 md:p-8 max-w-4xl">
         <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10">
             <header class="text-center mb-8">
-                <h1 class="text-4xl md:text-5xl font-bold text-gray-800">圖片生成器</h1>
-                <p class="text-gray-500 mt-2">上傳圖片，輸入提示，創造獨一無二的影像!</p>
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-800">Nano banana playground</h1>
+                <p class="text-gray-500 mt-2">Upload an image, type a prompt, and create a unique vision!</p>
             </header>
 
             <main class="grid md:grid-cols-2 gap-8">
-                <!-- 左側：輸入區 -->
+                <!-- Left Column: Inputs -->
                 <div class="space-y-6">
                     <div>
-                        <label for="image-upload" class="block text-sm font-medium text-gray-700 mb-1">上傳圖片</label>
+                        <label for="image-upload" class="block text-sm font-medium text-gray-700 mb-1">Upload Image</label>
                         <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
                             <div class="space-y-1 text-center">
                                 <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
@@ -43,37 +43,38 @@
                                 </svg>
                                 <div class="flex text-sm text-gray-600">
                                     <label for="image-upload-input" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
-                                        <span>選擇一個檔案</span>
+                                        <span>Choose a file</span>
                                         <input id="image-upload-input" name="image-upload" type="file" class="sr-only" accept="image/*">
                                     </label>
-                                    <p class="pl-1">或拖曳到此處</p>
+                                    <p class="pl-1">or drag and drop</p>
                                 </div>
                                 <p class="text-xs text-gray-500" id="file-name">PNG, JPG, GIF up to 10MB</p>
                             </div>
                         </div>
                     </div>
                     <div>
-                        <label for="prompt" class="block text-sm font-medium text-gray-700 mb-1">圖片提示 (Prompt)</label>
-                        <textarea id="prompt" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="例如：一隻貓在月球上，普普藝術風格"></textarea>
+                        <label for="prompt" class="block text-sm font-medium text-gray-700 mb-1">Prompt</label>
+                        <textarea id="prompt" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., A cat on the moon, pop art style"></textarea>
                     </div>
                     <button id="generate-btn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition duration-300 disabled:bg-gray-400">
-                        生成圖片
+                        Generate Image
                     </button>
                 </div>
 
-                <!-- 右側：預覽與結果區 -->
+                <!-- Right Column: Preview & Result -->
                 <div class="space-y-4">
-                    <h3 class="text-lg font-semibold text-gray-800">預覽與結果</h3>
+                    <h3 class="text-lg font-semibold text-gray-800">Preview & Result</h3>
                     <div id="image-preview-container" class="w-full aspect-square bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
-                        <span class="text-gray-500">圖片預覽</span>
+                        <span class="text-gray-500">Image Preview</span>
                     </div>
                     <div id="result-container" class="w-full aspect-square bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden relative">
                          <div id="loader" class="loader hidden"></div>
                         <img id="result-image" src="" alt="Generated Image" class="hidden w-full h-full object-contain">
-                        <span id="result-placeholder" class="text-gray-500">生成的圖片將顯示在此</span>
+                        <span id="result-placeholder" class="text-gray-500">Generated image will appear here</span>
                     </div>
+                    <!-- Mobile download tip -->
                     <p id="mobile-download-tip" class="text-center text-orange-700 bg-orange-100 font-medium p-2 rounded-lg text-sm mt-2 hidden md:hidden">
-                        請長按生成圖，點選下載圖片
+                        Press and hold the image to download
                     </p>
                 </div>
             </main>
@@ -85,9 +86,7 @@
     </div>
 
     <script>
-        // --- 設定 ---
-        
-        // --- DOM 元素 ---
+        // --- DOM Elements ---
         const imageUploadInput = document.getElementById('image-upload-input');
         const fileNameDisplay = document.getElementById('file-name');
         const promptInput = document.getElementById('prompt');
@@ -99,16 +98,16 @@
         const resultPlaceholder = document.getElementById('result-placeholder');
         const messageBox = document.getElementById('message-box');
         const messageText = document.getElementById('message-text');
-        const mobileDownloadTip = document.getElementById('mobile-download-tip'); // 新增
+        const mobileDownloadTip = document.getElementById('mobile-download-tip'); 
 
-        // --- 狀態變數 ---
+        // --- State ---
         let uploadedFile = null;
 
-        // --- 事件監聽 ---
+        // --- Event Listeners ---
         imageUploadInput.addEventListener('change', handleImageUpload);
         generateBtn.addEventListener('click', handleGenerateImage);
 
-        // --- 函式 ---
+        // --- Functions ---
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -123,14 +122,14 @@
 
         async function handleGenerateImage() {
             if (!uploadedFile || !promptInput.value.trim()) {
-                showMessage("請先上傳圖片並輸入提示詞！", "error");
+                showMessage("Please upload an image and enter a prompt!", "error");
                 return;
             }
 
             setLoading(true);
             resultImage.classList.add('hidden');
             resultPlaceholder.classList.add('hidden');
-            mobileDownloadTip.classList.add('hidden'); // 隱藏提示
+            mobileDownloadTip.classList.add('hidden'); // Hide tip
 
             try {
                 const base64ImageData = await fileToBase64(uploadedFile);
@@ -155,7 +154,7 @@
                 const result = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(result.error?.message || '後端伺服器發生錯誤');
+                    throw new Error(result.error?.message || 'An error occurred on the backend server.');
                 }
                 
                 console.log("Full API Response from backend:", JSON.stringify(result, null, 2));
@@ -167,28 +166,26 @@
                     const mimeType = imagePart.inlineData.mimeType;
                     resultImage.src = `data:${mimeType};base64,${generatedImageBase64}`;
                     resultImage.classList.remove('hidden');
-                    mobileDownloadTip.classList.remove('hidden'); // 顯示提示
-                    showMessage("圖片生成成功！");
+                    mobileDownloadTip.classList.remove('hidden'); // Show tip
+                    showMessage("Image generated successfully!");
                 } else {
-                    let detailedError = "API 回應中未找到圖片資料。";
+                    let detailedError = "No image data found in the API response.";
                     if (result?.candidates?.[0]?.finishReason === 'SAFETY') {
-                        detailedError += " 這可能是因為觸發了安全過濾器。請嘗試不同的圖片或提示詞。";
+                        detailedError += " This might be due to the safety filter. Please try a different image or prompt.";
                     } else if (result.error) {
                         detailedError = result.error.message;
                     }
                     throw new Error(detailedError);
-                }
+t                }
 
             } catch (error) {
-                console.error('生成圖片時發生錯誤:', error);
-                showMessage(`生成失敗: ${error.message}`, "error");
+                console.error('Error generating image:', error);
+                showMessage(`Generation failed: ${error.message}`, "error");
                 resultPlaceholder.classList.remove('hidden');
             } finally {
                 setLoading(false);
             }
         }
-
-        // 已移除 handleDownloadImage 函式
 
         function setLoading(isLoading) {
             generateBtn.disabled = isLoading;
