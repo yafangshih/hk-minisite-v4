@@ -76,6 +76,10 @@
                     <p id="mobile-download-tip" class="text-center text-orange-700 bg-orange-100 font-medium p-2 rounded-lg text-sm mt-2 hidden md:hidden">
                         Press and hold the image to download
                     </p>
+                    <!-- Desktop download tip (NEW) -->
+                    <p id="desktop-download-tip" class="text-center text-indigo-700 bg-indigo-100 font-medium p-2 rounded-lg text-sm mt-2 hidden md:block">
+                        Right-click and "Save image as..." to download
+                    </p>
                 </div>
             </main>
 
@@ -106,6 +110,7 @@
         const messageBox = document.getElementById('message-box');
         const messageText = document.getElementById('message-text');
         const mobileDownloadTip = document.getElementById('mobile-download-tip'); 
+        const desktopDownloadTip = document.getElementById('desktop-download-tip'); // (NEW)
 
         // --- State ---
         let uploadedFile = null;
@@ -137,6 +142,7 @@
             resultImage.classList.add('hidden');
             resultPlaceholder.classList.add('hidden');
             mobileDownloadTip.classList.add('hidden'); // Hide tip
+            desktopDownloadTip.classList.add('hidden'); // (NEW) Hide tip
 
             try {
                 const base64ImageData = await fileToBase64(uploadedFile);
@@ -174,6 +180,7 @@
                     resultImage.src = `data:${mimeType};base64,${generatedImageBase64}`;
                     resultImage.classList.remove('hidden');
                     mobileDownloadTip.classList.remove('hidden'); // Show tip
+                    desktopDownloadTip.classList.remove('hidden'); // (NEW) Show tip
                     showMessage("Image generated successfully!");
                 } else {
                     let detailedError = "No image data found in the API response.";
