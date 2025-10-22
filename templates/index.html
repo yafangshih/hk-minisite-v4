@@ -70,18 +70,17 @@
                     <div id="result-container" class="w-full aspect-square bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden relative">
                          <div id="loader" class="loader hidden"></div>
                         <img id="result-image" src="" alt="Generated Image" class="hidden w-full h-full object-contain">
-                        <div id="result-placeholder" class="text-gray-500">Generated image will appear here</span>
+                        <span id="result-placeholder" class="text-gray-500">Generated image will appear here</span>
                         
-                        <!-- (MOVED & MODIFIED) Mobile download tip -->
+                        <!-- Mobile download tip -->
                         <p id="mobile-download-tip" class="absolute bottom-0 left-0 right-0 text-center text-orange-700 bg-orange-100 font-medium p-2 text-sm hidden">
                             Press and hold the image to download
                         </p>
-                        <!-- (MOVED & MODIFIED) Desktop download tip -->
+                        <!-- Desktop download tip -->
                         <p id="desktop-download-tip" class="absolute bottom-0 left-0 right-0 text-center text-orange-700 bg-orange-100 font-medium p-2 text-sm hidden">
                             Right-click and "Save image as..." to download
                         </p>
                     </div>
-                    <!-- Tips moved inside result-container -->
                 </div>
             </main>
 
@@ -112,7 +111,7 @@
         const messageBox = document.getElementById('message-box');
         const messageText = document.getElementById('message-text');
         const mobileDownloadTip = document.getElementById('mobile-download-tip'); 
-        const desktopDownloadTip = document.getElementById('desktop-download-tip'); // (NEW)
+        const desktopDownloadTip = document.getElementById('desktop-download-tip'); 
 
         // --- State ---
         let uploadedFile = null;
@@ -144,13 +143,11 @@
             resultImage.classList.add('hidden');
             resultPlaceholder.classList.add('hidden');
             
-            // --- (MODIFIED) Reset tips to hidden ---
+            // Reset and hide tips
             mobileDownloadTip.classList.add('hidden');
-            mobileDownloadTip.classList.remove('md:hidden'); // Remove responsive class
-            
+            mobileDownloadTip.classList.remove('md:hidden');
             desktopDownloadTip.classList.add('hidden');
-            desktopDownloadTip.classList.remove('md:block'); // Remove responsive class
-            // --- End Modification ---
+            desktopDownloadTip.classList.remove('md:block');
 
             try {
                 const base64ImageData = await fileToBase64(uploadedFile);
@@ -188,14 +185,11 @@
                     resultImage.src = `data:${mimeType};base64,${generatedImageBase64}`;
                     resultImage.classList.remove('hidden');
                     
-                    // --- (MODIFIED) Apply correct responsive classes ---
+                    // Apply correct responsive classes
                     mobileDownloadTip.classList.remove('hidden'); // Show tip
                     mobileDownloadTip.classList.add('md:hidden'); // Hide on desktop
                     
-                    // (MODIFIED) Show desktop tip
-                    // We just need to add 'md:block'. 'hidden' is already applied at the start of the function.
-                    desktopDownloadTip.classList.add('md:block'); // Show on desktop
-                    // --- End Modification ---
+                    desktopDownloadTip.classList.add('md:block'); // Show on desktop (already has 'hidden')
 
                     showMessage("Image generated successfully!");
                 } else {
@@ -206,7 +200,7 @@
                         detailedError = result.error.message;
                     }
                     throw new Error(detailedError);
-t                }
+                }
 
             } catch (error) {
                 console.error('Error generating image:', error);
@@ -231,7 +225,7 @@ t                }
             }, 3000);
         }
 
-        function fileToBase64(file) {
+What        function fileToBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -242,8 +236,4 @@ t                }
     </script>
 </body>
 </html>
-
-
-
-
 
