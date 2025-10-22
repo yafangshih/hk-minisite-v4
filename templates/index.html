@@ -192,9 +192,9 @@
                     mobileDownloadTip.classList.remove('hidden'); // Show tip
                     mobileDownloadTip.classList.add('md:hidden'); // Hide on desktop
                     
-                    desktopDownloadTip.classList.remove('hidden'); // (NEW) Show tip
-                    desktopDownloadTip.classList.add('hidden'); // (NEW) Hide on mobile by default
-                    desktopDownloadTip.classList.add('md:block'); // (NEW) Show on desktop
+                    // (MODIFIED) Show desktop tip
+                    // We just need to add 'md:block'. 'hidden' is already applied at the start of the function.
+                    desktopDownloadTip.classList.add('md:block'); // Show on desktop
                     // --- End Modification ---
 
                     showMessage("Image generated successfully!");
@@ -242,6 +242,7 @@ t                }
     </script>
 </body>
 </html>
+
 
 
 
