@@ -70,16 +70,18 @@
                     <div id="result-container" class="w-full aspect-square bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden relative">
                          <div id="loader" class="loader hidden"></div>
                         <img id="result-image" src="" alt="Generated Image" class="hidden w-full h-full object-contain">
-                    <div id="result-placeholder" class="text-gray-500">Generated image will appear here</span>
+                        <div id="result-placeholder" class="text-gray-500">Generated image will appear here</span>
+                        
+                        <!-- (MOVED & MODIFIED) Mobile download tip -->
+                        <p id="mobile-download-tip" class="absolute bottom-0 left-0 right-0 text-center text-orange-700 bg-orange-100 font-medium p-2 text-sm hidden">
+                            Press and hold the image to download
+                        </p>
+                        <!-- (MOVED & MODIFIED) Desktop download tip -->
+                        <p id="desktop-download-tip" class="absolute bottom-0 left-0 right-0 text-center text-orange-700 bg-orange-100 font-medium p-2 text-sm hidden">
+                            Right-click and "Save image as..." to download
+                        </p>
                     </div>
-                    <!-- Mobile download tip -->
-                    <p id="mobile-download-tip" class="text-center text-orange-700 bg-orange-100 font-medium p-2 rounded-lg text-sm mt-2 hidden">
-                        Press and hold the image to download
-                    </p>
-                    <!-- Desktop download tip (MODIFIED) -->
-                    <p id="desktop-download-tip" class="text-center text-orange-700 bg-orange-100 font-medium p-2 rounded-lg text-sm mt-2 hidden">
-                        Right-click and "Save image as..." to download
-                    </p>
+                    <!-- Tips moved inside result-container -->
                 </div>
             </main>
 
@@ -240,6 +242,7 @@ t                }
     </script>
 </body>
 </html>
+
 
 
 
