@@ -70,14 +70,14 @@
                     <div id="result-container" class="w-full aspect-square bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden relative">
                          <div id="loader" class="loader hidden"></div>
                         <img id="result-image" src="" alt="Generated Image" class="hidden w-full h-full object-contain">
-                        <span id="result-placeholder" class="text-gray-500">Generated image will appear here</span>
+                    <div id="result-placeholder" class="text-gray-500">Generated image will appear here</span>
                     </div>
                     <!-- Mobile download tip -->
-                    <p id="mobile-download-tip" class="text-center text-orange-700 bg-orange-100 font-medium p-2 rounded-lg text-sm mt-2 hidden md:hidden">
+                    <p id="mobile-download-tip" class="text-center text-orange-700 bg-orange-100 font-medium p-2 rounded-lg text-sm mt-2 hidden">
                         Press and hold the image to download
                     </p>
                     <!-- Desktop download tip (NEW) -->
-                    <p id="desktop-download-tip" class="text-center text-indigo-700 bg-indigo-100 font-medium p-2 rounded-lg text-sm mt-2 hidden md:block">
+                    <p id="desktop-download-tip" class="text-center text-indigo-700 bg-indigo-100 font-medium p-2 rounded-lg text-sm mt-2 hidden">
                         Right-click and "Save image as..." to download
                     </p>
                 </div>
@@ -141,8 +141,14 @@
             setLoading(true);
             resultImage.classList.add('hidden');
             resultPlaceholder.classList.add('hidden');
-            mobileDownloadTip.classList.add('hidden'); // Hide tip
-            desktopDownloadTip.classList.add('hidden'); // (NEW) Hide tip
+            
+            // --- (MODIFIED) Reset tips to hidden ---
+            mobileDownloadTip.classList.add('hidden');
+            mobileDownloadTip.classList.remove('md:hidden'); // Remove responsive class
+            
+            desktopDownloadTip.classList.add('hidden');
+            desktopDownloadTip.classList.remove('md:block'); // Remove responsive class
+            // --- End Modification ---
 
             try {
                 const base64ImageData = await fileToBase64(uploadedFile);
@@ -179,8 +185,16 @@
                     const mimeType = imagePart.inlineData.mimeType;
                     resultImage.src = `data:${mimeType};base64,${generatedImageBase64}`;
                     resultImage.classList.remove('hidden');
+                    
+                    // --- (MODIFIED) Apply correct responsive classes ---
                     mobileDownloadTip.classList.remove('hidden'); // Show tip
+                    mobileDownloadTip.classList.add('md:hidden'); // Hide on desktop
+                    
                     desktopDownloadTip.classList.remove('hidden'); // (NEW) Show tip
+                    desktopDownloadTip.classList.add('hidden'); // (NEW) Hide on mobile by default
+                    desktopDownloadTip.classList.add('md:block'); // (NEW) Show on desktop
+                    // --- End Modification ---
+
                     showMessage("Image generated successfully!");
                 } else {
                     let detailedError = "No image data found in the API response.";
@@ -226,4 +240,5 @@ t                }
     </script>
 </body>
 </html>
+
 
