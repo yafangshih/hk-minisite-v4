@@ -77,7 +77,7 @@
                         Press and hold the image to download
                     </p>
                     <!-- Desktop download tip (NEW) -->
-                    <p id="desktop-download-tip" class="text-center text-orange-700 bg-orange-100 font-medium p-2 rounded-lg text-sm mt-2 hidden md:block">
+                    <p id="desktop-download-tip" class="text-center text-orange-700 bg-orange-100 font-medium p-2 rounded-lg text-sm mt-2 hidden md:hidden">
                         Right-click and "Save image as..." to download
                     </p>
                 </div>
@@ -142,7 +142,11 @@
             resultImage.classList.add('hidden');
             resultPlaceholder.classList.add('hidden');
             mobileDownloadTip.classList.add('hidden'); // Hide tip
-            desktopDownloadTip.classList.add('hidden'); // (NEW) Hide tip
+            
+            // Reset desktop tip classes to be hidden everywhere
+            desktopDownloadTip.classList.add('hidden'); 
+            desktopDownloadTip.classList.add('md:hidden');
+            desktopDownloadTip.classList.remove('md:block');
 
             try {
                 const base64ImageData = await fileToBase64(uploadedFile);
@@ -180,7 +184,12 @@
                     resultImage.src = `data:${mimeType};base64,${generatedImageBase64}`;
                     resultImage.classList.remove('hidden');
                     mobileDownloadTip.classList.remove('hidden'); // Show tip
-                    desktopDownloadTip.classList.remove('hidden'); // (NEW) Show tip
+                    
+                    // Show desktop tip *only* on desktop
+                    desktopDownloadTip.classList.remove('md:hidden');
+                    desktopDownloadTip.classList.add('md:block');
+                    // 'hidden' class for mobile stays, so result is 'hidden md:block'
+
                     showMessage("Image generated successfully!");
                 } else {
                     let detailedError = "No image data found in the API response.";
@@ -226,3 +235,4 @@ t                }
     </script>
 </body>
 </html>
+
